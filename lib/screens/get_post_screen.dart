@@ -16,8 +16,7 @@ class _GetPostScreenState extends State<GetPostScreen> {
 
 
   Future<Post> getPostFromAPI() async {
-    print('Called');
-    String url = 'https://jsonplaceholder.typicode.com/posts/10';
+    String url = 'https://jsonplaceholder.typicode.com/posts/11';
     Uri uri = Uri.parse(url);
 
     http.Response response = await http.get( uri);
@@ -25,7 +24,10 @@ class _GetPostScreenState extends State<GetPostScreen> {
     if( response.statusCode == 200 ){
       var jsonResponse = jsonDecode(response.body);
 
+      Post post = Post.fromJson(jsonResponse);
       print(jsonResponse);
+
+      return post;
     }else{
       print('SWW');
     }
@@ -41,10 +43,6 @@ class _GetPostScreenState extends State<GetPostScreen> {
   }
 
 
-
-
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -52,6 +50,27 @@ class _GetPostScreenState extends State<GetPostScreen> {
         title: Text('Get POST'),
         backgroundColor: Colors.green,
       ),
+      body: FutureBuilder<Post>(
+          future: getPostFromAPI(),
+          builder: (context, snapshot){
+
+            if( snapshot.hasData){
+
+              Post post = snapshot.data as Post;
+
+              return Column(
+                children: [
+                  Text(post.userId?.toString() ?? "NO ID"),
+                  Text(post.id?.toString() ?? "NO title"),
+                  Text(post.title ?? "NO title"),
+                  Text(post.body ?? "NO body"),
+                ],
+              );
+
+            }else{
+              return Center(child: CircularProgressIndicator(),);
+            }
+      }),
     );
   }
 }
