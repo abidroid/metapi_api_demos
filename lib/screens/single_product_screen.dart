@@ -26,7 +26,7 @@ class _SingleProductScreenState extends State<SingleProductScreen> {
 
   Future<Product> getSingleProduct() async {
 
-    String url = 'https://fakestoreapi.com/products/2';
+    String url = 'https://fakestoreapi.com/products/11';
     Uri uri = Uri.parse(url);
 
     http.Response response = await http.get(uri);
@@ -65,7 +65,7 @@ class _SingleProductScreenState extends State<SingleProductScreen> {
                   spacing: 16,
                   children: [
 
-                    Image.network(product.image!, width: 200, height: 200,),
+                    Center(child: Image.network(product.image!, width: 200, height: 200,)),
                     Text(product.title ?? "nishta", style: TextStyle(fontSize: 20, fontWeight: .bold),),
                     Text('${product.price}\$' ?? "nishta", style: TextStyle(color: Colors.red, fontWeight: .bold, fontSize: 20),),
                     Row(
