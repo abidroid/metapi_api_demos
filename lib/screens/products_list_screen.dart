@@ -1,0 +1,117 @@
+
+import 'dart:convert';
+
+import 'package:flare_rating/flare_rating.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:metapi_api_demos/models/product.dart';
+import 'package:http/http.dart' as http;
+
+class ProductsListScreen extends StatefulWidget {
+  const ProductsListScreen({super.key});
+
+  @override
+  State<ProductsListScreen> createState() => _ProductsListScreenState();
+}
+
+class _ProductsListScreenState extends State<ProductsListScreen> {
+
+  Future<List<Product>> getAllProducts() async {
+    String url = 'https://fakestoreapi.com/products';
+    Uri uri = Uri.parse(url);
+
+    http.Response response = await http.get(uri);
+
+    if( response.statusCode == 200 ){
+
+      var jsonResponse = jsonDecode(response.body);
+
+      List<Product> productList = [];
+
+
+      // inside this loop, each json product is converted
+      // to Product object
+      // and added to list
+      // and then the list is returned
+      for( var jsonProduct in jsonResponse){
+        Product product = Product.fromJson(jsonProduct);
+
+        productList.add(product);
+      }
+
+      return productList;
+    }
+
+    return [];
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Products LIst'),
+        backgroundColor: Colors.green,
+      ),
+
+    body: FutureBuilder<List<Product>>(
+        future: getAllProducts(),
+        builder: (context, snapshot){
+
+          if( snapshot.hasData){
+            List<Product> products = snapshot.data as List<Product>;
+
+            return GridView.builder(
+                itemCount: products.length,
+                gridDelegate:
+                SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    childAspectRatio: .5,
+                ),
+
+                itemBuilder: (context, index){
+                  Product product = products[index];
+
+                  return Card(
+                    child: Column(
+                      crossAxisAlignment: .start,
+                      mainAxisAlignment: .center,
+                      spacing: 16,
+                      children: [
+
+                        Center(child: Image.network(product.image!, width: 200, height: 200,)),
+                        Text(product.title ?? "nishta", style: TextStyle(fontSize: 20, fontWeight: .bold),),
+                        Text('${product.price}\$' ?? "nishta", style: TextStyle(color: Colors.red, fontWeight: .bold, fontSize: 20),),
+                        Wrap(
+                          spacing: 16,
+                          children: [
+                            FlareRating(
+                              rating: product.rating?.rate ?? 0.0,
+                              allowHalfRating: true,
+                              itemCount: 5,
+                              //onRatingUpdate: (value) => setState(() => _rating = value),
+                            ),
+                            Text("(${product.rating?.count ?? 0})", style: TextStyle(fontSize: 20, fontWeight: .bold),)
+                          ],
+                        ),
+
+                        Text('${product.description}',
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                              color: Colors.blue,
+                              fontWeight: .bold,
+                              fontSize: 20),)
+
+
+                      ],
+                    ),
+                  );
+                });
+
+          }else{
+            return Center(child: SpinKitRipple(color: Colors.green, size: 150,),);
+          }
+        }),
+    );
+  }
+}
