@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:metapi_api_demos/screens/add_post_screen.dart';
 import 'package:metapi_api_demos/screens/get_post_screen.dart';
 import 'package:metapi_api_demos/screens/products_list_screen.dart';
 import 'package:metapi_api_demos/screens/single_product_screen.dart';
@@ -50,6 +51,18 @@ class HomeScreen extends StatelessWidget {
               onTap: (){
                 Navigator.of(context).push(MaterialPageRoute(builder: (context){
                   return SingleProductScreen();
+                }));
+              },
+            ),
+          ),
+
+
+          Card(
+            child: ListTile(
+              title: Text('Add Post'),
+              onTap: (){
+                Navigator.of(context).push(MaterialPageRoute(builder: (context){
+                  return AddPostScreen();
                 }));
               },
             ),
