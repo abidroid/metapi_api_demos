@@ -17,7 +17,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
   var titleC = TextEditingController();
   var bodyC = TextEditingController();
 
-  Post? post;
+  Post? globalPost;
 
   createPost(Post post) async {
     String url = 'https://jsonplaceholder.typicode.com/posts';
@@ -34,7 +34,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
       Post resultingPost = Post.fromJson(jsonResponse);
 
      setState(() {
-       post = resultingPost;
+       globalPost = resultingPost;
      });
     } else {
       print('Something went wrong');
@@ -115,7 +115,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
               child: const Text('Submit'),
             ),
 
-            Text('${post?.toJson()}'),
+            Text('${globalPost?.toJson()}'),
           ],
         ),
       ),
