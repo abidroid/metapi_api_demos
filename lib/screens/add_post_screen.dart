@@ -1,6 +1,8 @@
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:metapi_api_demos/models/post.dart';
+import 'package:http/http.dart' as http;
 
 class AddPostScreen extends StatefulWidget {
   const AddPostScreen({super.key});
@@ -10,19 +12,40 @@ class AddPostScreen extends StatefulWidget {
 }
 
 class _AddPostScreenState extends State<AddPostScreen> {
-
   // type inference
   var userIdC = TextEditingController();
   var titleC = TextEditingController();
   var bodyC = TextEditingController();
 
+  Post? post;
+
+  createPost(Post post) async {
+    String url = 'https://jsonplaceholder.typicode.com/posts';
+    Uri uri = Uri.parse(url);
+
+    http.Response response = await http.post(
+      uri,
+      headers: {'Content-type': 'application/json; charset=UTF-8'},
+      body: jsonEncode(post.toJson()) // map, key value pairs
+    );
+
+    if (response.statusCode == 201) {
+      var jsonResponse = jsonDecode(response.body);
+      Post resultingPost = Post.fromJson(jsonResponse);
+
+     setState(() {
+       post = resultingPost;
+     });
+    } else {
+      print('Something went wrong');
+
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Add Post'),
-        backgroundColor: Colors.green,
-      ),
+      appBar: AppBar(title: Text('Add Post'), backgroundColor: Colors.green),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -41,9 +64,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
               decoration: InputDecoration(
                 hintText: 'Title',
                 border: OutlineInputBorder(),
-
               ),
-
             ),
 
             TextField(
@@ -52,43 +73,49 @@ class _AddPostScreenState extends State<AddPostScreen> {
               decoration: InputDecoration(
                 hintText: 'Body',
                 border: OutlineInputBorder(),
-
               ),
-
             ),
-            
-            ElevatedButton(onPressed: (){
-              String userId = userIdC.text.trim();
-              String title = titleC.text.trim();
-              String body = bodyC.text.trim();
 
-              if( userId.isEmpty){
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Please provide user id'))
+            ElevatedButton(
+              onPressed: () async {
+                String userId = userIdC.text.trim();
+                String title = titleC.text.trim();
+                String body = bodyC.text.trim();
+
+                if (userId.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Please provide user id')),
+                  );
+                  return;
+                }
+
+                if (title.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Please provide title')),
+                  );
+                  return;
+                }
+
+                if (body.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Please provide body description')),
+                  );
+                  return;
+                }
+
+                // send this post to server
+                Post post = Post(
+                  userId: int.parse(userId!),
+                  title: title,
+                  body: body,
                 );
-                return;
-              }
 
+                await createPost(post);
+              },
+              child: const Text('Submit'),
+            ),
 
-              if( title.isEmpty){
-                ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Please provide title'))
-                );
-                return;
-              }
-
-
-              if( body.isEmpty){
-                ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Please provide body description'))
-                );
-                return;
-              }
-
-
-              Post post = Post(userId: int.parse(userId!), title: title, body: body);
-
-            }, child: const Text('Submit'))
+            Text('${post?.toJson()}'),
           ],
         ),
       ),
